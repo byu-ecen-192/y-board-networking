@@ -66,17 +66,7 @@ void wifi_sniffer_rx_packet(void *buf, wifi_promiscuous_pkt_type_t type) {
     }
 }
 
-void LabWiFiImp::setup(const String &ssid, const String &password, bool *any_sniffed_packet,
-                       bool packets[20]) {
-    setup(ssid.c_str(), password.c_str(), any_sniffed_packet, packets);
-}
-
-void LabWiFiImp::setup(const std::string &ssid, const std::string &password,
-                       bool *any_sniffed_packet, bool packets[20]) {
-    setup(ssid.c_str(), password.c_str(), any_sniffed_packet, packets);
-}
-
-void LabWiFiImp::setup(const char *ssid, const char *password, bool *any_sniffed_packet,
+void LabWiFiImp::setup(const std::string ssid, const std::string password, bool *any_sniffed_packet,
                        bool packets[20]) {
     this->ssid = ssid;
     this->password = password;
@@ -102,10 +92,14 @@ void LabWiFiImp::stop_sniffer() {
 
 void LabWiFiImp::start_client() {
     // Connect to the WiFi network
-    Serial.printf("Connecting to WiFi network (%s)\n", ssid);
+    Serial.printf("Connecting to WiFi network (%s)\n", ssid.c_str());
 
     WiFi.mode(WIFI_STA);
-    WiFi.begin(ssid, password);
+    if (password.length() == 0) {
+        WiFi.begin(ssid.c_str());
+    } else {
+        WiFi.begin(ssid.c_str(), password.c_str());
+    }
 
     while (WiFi.status() != WL_CONNECTED) {
         Yboard.set_all_leds_color(255, 255, 255);

@@ -5,8 +5,7 @@
 #include <ArduinoJson.h>
 #include <yboard.h>
 
-static const String ssid = "";
-static const String password = "";
+static const std::string ssid = "BYU-WiFi";
 static const String server_url = "http://ecen192.byu.edu:5000";
 
 static bool station_mode = false;
@@ -28,7 +27,7 @@ credentials_t credentials = {NULL, NULL};
 void setup() {
     Serial.begin(9600);
     Yboard.setup();
-    LabWiFi.setup(ssid, password, &sniffed_packet, leds);
+    LabWiFi.setup(ssid, "", &sniffed_packet, leds);
 }
 
 void loop() {
@@ -47,10 +46,10 @@ void loop() {
             // Get the ID and password from the server
             if (!get_credentials(&credentials)) {
                 Serial.println("Error getting credentials from server");
+                // Wait for 5 seconds and then try again
+                delay(5000);
+                return;
             }
-            // Wait for 5 seconds and then try again
-            delay(5000);
-            return;
         }
 
         poll_server();
@@ -71,6 +70,7 @@ void loop() {
     // Update brightness of LEDs based on knob
     int brightness = map(Yboard.get_knob(), 0, 100, 0, 255);
     Yboard.set_led_brightness(brightness);
+    Serial.println("Sniffing packets");
 
     if (Yboard.get_switch(1)) {
         // If the first switch is set, blink the LEDs for every frame sniffed
@@ -96,6 +96,8 @@ void loop() {
 }
 
 bool poll_server() {
+    Serial.println("Polling server for commands");
+
     HTTPClient http;
     http.begin(server_url + "/poll_commands");
     int httpResponseCode = http.GET();
@@ -130,6 +132,8 @@ bool poll_server() {
 
         Serial.printf("Changing LED color to (%d, %d, %d)\n", r, g, b);
         Yboard.set_all_leds_color(r, g, b);
+        return true;
+    } else if (command == "null") {
         return true;
     } else {
         Serial.printf("Unknown command: %s\n", command.c_str());
@@ -173,12 +177,12 @@ bool get_credentials(credentials_t *credentials) {
         return false;
     }
 
-    if (doc.containsKey("identifier") && doc.containsKey("password")) {
-        credentials->id = doc["identifier"];
+    if (doc.containsKey("ip_address") && doc.containsKey("password")) {
+        credentials->id = doc["ip_address"];
         credentials->password = doc["password"];
         return true;
     } else {
-        Serial.printf("Error: Server response does not contain 'identifier' or 'password'\n");
+        Serial.printf("Error: Server response does not contain 'ip_address' or 'password'\n");
         return false;
     }
 }
