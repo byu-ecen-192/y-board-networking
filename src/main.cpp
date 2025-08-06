@@ -119,7 +119,7 @@ void loop() {
     }
 
     // Update brightness of LEDs based on knob
-    int brightness = map(Yboard.get_knob(), 0, 100, 10, 255);
+    int brightness = map(Yboard.get_knob() % 100, 0, 100, 50, 255);
     Yboard.set_led_brightness(brightness);
 
     if (Yboard.get_switch(1)) {

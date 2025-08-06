@@ -12,7 +12,6 @@ static int *sniffed_packets;
 static int *sniffed_packet;
 std::unordered_map<std::string, size_t> unique_macs;
 std::deque<std::string> mac_queue;
-Adafruit_SSD1306 display;
 bool display_setup = false;
 int rssi = 0;
 
@@ -30,14 +29,14 @@ bool setup_display() {
     if (display_setup) {
         return true;
     }
-    if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3c)) {
+    if (!Yboard.display.begin(SSD1306_SWITCHCAPVCC, 0x3c)) {
         return false;
     } 
-    display.clearDisplay();
-    display.setTextColor(1);
-    display.setRotation(0); 
-    display.setTextWrap(false);
-    display.display();
+    Yboard.display.clearDisplay();
+    Yboard.display.setTextColor(1);
+    Yboard.display.setRotation(90); 
+    Yboard.display.setTextWrap(false);
+    Yboard.display.display();
     display_setup = true;
     return true;
 }
@@ -46,22 +45,22 @@ void display_text(const std::string &text_1, const std::string &text_2, const st
     unsigned long current_time = millis();
     
     if (current_time - start_time >= 400 || display_lock) {
-        display.setTextSize(1);
-        display.clearDisplay();
-        display.setCursor(0, 0);
-        display.print(text_1.c_str());
-        display.setCursor(0, 10);
-        display.print(text_2.c_str());
-        display.setCursor(0, 20);
-        display.print(text_3.c_str());
-        display.display();
+        Yboard.display.setTextSize(1);
+        Yboard.display.clearDisplay();
+        Yboard.display.setCursor(0, 0);
+        Yboard.display.print(text_1.c_str());
+        Yboard.display.setCursor(0, 10);
+        Yboard.display.print(text_2.c_str());
+        Yboard.display.setCursor(0, 20);
+        Yboard.display.print(text_3.c_str());
+        Yboard.display.display();
     }
     
 }
 
 void clear_display() {
-    display.clearDisplay();
-    display.display();
+    Yboard.display.clearDisplay();
+    Yboard.display.display();
 }
 
 
